@@ -3,22 +3,23 @@ import torch
 
 from model import *
 from dataset import *
+from utility import *
 from lib.engine import evaluate
 import lib.utils
 
+cwd = os.path.abspath(os.path.dirname(__file__))
+data_path = os.path.abspath(os.path.join(cwd, './data'))
+labels_test_path = os.path.abspath(os.path.join(cwd, './data/drinks/labels_test.csv'))
+trained_model_path = os.path.abspath(os.path.join(cwd, './export/trained_model.pth'))
 
 def test():
     # train on the GPU or on the CPU, if a GPU is not available
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     print('Device selected: ', device)
 
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    labels_test_path = os.path.abspath(os.path.join(cwd, 'data/drinks/labels_test.csv'))
-    trained_model_path = os.path.abspath(os.path.join(cwd, 'export/trained_model.pth'))
-
     # declare the test dataset and dataloader
     num_classes = 4
-    dataset_test = DrinksDataset(root='data/drinks/', csv_file=labels_test_path, transforms=get_transform(train=False))
+    dataset_test = DrinksDataset(root='./data/drinks/', csv_file=labels_test_path, transforms=get_transform(train=False))
 
     data_loader_test = torch.utils.data.DataLoader(
         dataset_test, batch_size=1, shuffle=False, num_workers=4,
@@ -35,4 +36,6 @@ def test():
     evaluate(model, data_loader_test, device=device)
     
 if __name__ == "__main__":
+    load_dataset(data_path)
+    load_model_checkpoint(trained_model_path)
     test()

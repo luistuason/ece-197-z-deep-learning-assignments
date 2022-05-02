@@ -14,7 +14,7 @@ def infer():
     print('Device selected: ', device)
 
     cwd = os.path.abspath(os.path.dirname(__file__))
-    trained_model_path = os.path.abspath(os.path.join(cwd, 'export/trained_model.pth'))
+    trained_model_path = os.path.abspath(os.path.join(cwd, './export/trained_model.pth'))
 
     num_classes = 4
     classes = {
@@ -26,7 +26,7 @@ def infer():
     
     # filename = '0010010.jpg'
     filename = 'test.jpg'
-    image_filepath = os.path.abspath(os.path.join(cwd, 'data/drinks/' + filename))
+    image_filepath = os.path.abspath(os.path.join(cwd, './data/drinks/' + filename))
 
     image = Image.open(image_filepath)
     image = T.ToTensor()(image)[0]

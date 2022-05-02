@@ -4,8 +4,14 @@ import torch
 
 from model import *
 from dataset import *
+from utility import load_dataset
 from lib.engine import train_one_epoch, evaluate
 import lib.utils
+
+cwd = os.path.abspath(os.path.dirname(__file__))
+data_path = os.path.abspath(os.path.join(cwd, './data'))
+labels_train_path = os.path.abspath(os.path.join(cwd, './data/drinks/labels_train.csv'))
+labels_test_path = os.path.abspath(os.path.join(cwd, './data/drinks/labels_test.csv'))
 
 
 def train():
@@ -13,14 +19,10 @@ def train():
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     print('Device selected: ', device)
 
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    labels_train_path = os.path.abspath(os.path.join(cwd, 'data/drinks/labels_train.csv'))
-    labels_test_path = os.path.abspath(os.path.join(cwd, 'data/drinks/labels_test.csv'))
-
     # declare the dataset
     num_classes = 4
-    dataset = DrinksDataset(root='data/drinks/', csv_file=labels_train_path, transforms=get_transform(train=True))
-    dataset_test = DrinksDataset(root='data/drinks/', csv_file=labels_test_path, transforms=get_transform(train=False))
+    dataset = DrinksDataset(root='./data/drinks/', csv_file=labels_train_path, transforms=get_transform(train=True))
+    dataset_test = DrinksDataset(root='./data/drinks/', csv_file=labels_test_path, transforms=get_transform(train=False))
 
     # define training and validation data loaders
     data_loader = torch.utils.data.DataLoader(
@@ -45,7 +47,6 @@ def train():
                                                    step_size=3,
                                                    gamma=0.1)
 
-
     num_epochs = 10
     epoch_number = 0
 
@@ -57,11 +58,15 @@ def train():
         # evaluate on the test dataset
         evaluate(model, data_loader_test, device=device)
 
-        # save checkpoint
+        # save checkpoints
+        if not os.path.exists('./checkpoints'):
+            os.makedirs('./checkpoints')
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        model_path = 'export/model_{}_{}.pth'.format(timestamp, epoch_number)
+        model_path = './export/model_{}_{}.pth'.format(timestamp, epoch_number)
         torch.save(model.state_dict(), model_path)
         epoch_number+=1
     
 if __name__ == "__main__":
+    load_dataset(data_path)
     train()
