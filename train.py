@@ -58,10 +58,6 @@ def train():
         # evaluate on the test dataset
         evaluate(model, data_loader_test, device=device)
 
-        # save checkpoints
-        if not os.path.exists('./checkpoints'):
-            os.makedirs('./checkpoints')
-
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         model_path = './export/model_{}_{}.pth'.format(timestamp, epoch_number)
         torch.save(model.state_dict(), model_path)

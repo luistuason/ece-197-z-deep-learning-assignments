@@ -1,4 +1,5 @@
 import os
+from cv2 import VideoWriter_fourcc
 import numpy as np
 import torch
 import cv2
@@ -6,6 +7,10 @@ import imutils
 
 from model import *
 from dataset import *
+from utility import load_model_checkpoint
+
+cwd = os.path.abspath(os.path.dirname(__file__))
+trained_model_path = os.path.abspath(os.path.join(cwd, 'export/trained_model.pth'))
 
 
 def infer_frame(frame, og_frame, model):
@@ -37,9 +42,6 @@ def infer_frame(frame, og_frame, model):
 def main():
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    trained_model_path = os.path.abspath(os.path.join(cwd, 'export/trained_model.pth'))
-
     num_classes = 4
 
     #Load model
@@ -56,9 +58,13 @@ def main():
     elif (os.name == 'posix'):
         cap = cv2.VideoCapture(0)
 
-    # Get height and width
-    cap_width = cap.get(3)
-    cap_height = cap.get(4)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
+    # Video Writer for 30 sec demo vid
+    # cap_width = int(cap.get(3))
+    # cap_height = int(cap.get(4))
+    # write = cv2.VideoWriter('shorter_demo.mp4', VideoWriter_fourcc(*'mp4v'), 30, (cap_width, cap_height)) 
+    # frames = 0
 
     while (True):
         ret, frame = cap.read()
@@ -75,15 +81,19 @@ def main():
 
         frame_show = infer_frame(frame, og, model)
 
-        # frame_show = cv2.flip(frame_show, 1)
+        # write.write(frame_show)
+        # frames+=1
         cv2.imshow('frame', frame_show)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        # if (cv2.waitKey(1) & 0xFF == ord('q')) or frames == 30*10:
+        if (cv2.waitKey(1) & 0xFF == ord('q')):
             break
 
     cap.release()
+    # write.release()
     cv2.destroyAllWindows()
     
     
 if __name__ == "__main__":
+    load_model_checkpoint(trained_model_path)
     main()
