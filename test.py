@@ -48,7 +48,7 @@ def test():
 
     # get the model using our helper function
     model = load_model(num_classes)
-    ckpt = torch.load(trained_model_path)
+    ckpt = torch.load(trained_model_path, map_location=device)
     model.load_state_dict(ckpt)
 
     # move model to the right device
