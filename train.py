@@ -45,7 +45,7 @@ def get_transform(train):
     return T.Compose(transforms)
 
 
-def main():
+def train():
     # train on the GPU or on the CPU, if a GPU is not available
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -103,4 +103,4 @@ def main():
     print("That's it!")
     
 if __name__ == "__main__":
-    main()
+    train()

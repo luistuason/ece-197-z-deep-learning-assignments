@@ -1,0 +1,33 @@
+brotlipy @ file:///D:/bld/brotlipy_1648854347500/work
+certifi==2021.10.8
+cffi @ file:///D:/bld/cffi_1636046270630/work
+charset-normalizer @ file:///home/conda/feedstock_root/build_artifacts/charset-normalizer_1644853463426/work
+cryptography @ file:///D:/bld/cryptography_1649035392887/work
+cycler==0.11.0
+Cython==0.29.28
+einops==0.4.1
+fonttools==4.33.3
+idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1642433548627/work
+imutils==0.5.4
+kiwisolver==1.4.2
+matplotlib==3.5.1
+numpy @ file:///D:/bld/numpy_1651020764721/work
+opencv-python==4.5.5.64
+packaging==21.3
+pandas==1.4.2
+Pillow @ file:///D:/bld/pillow_1649818151270/work
+pycocotools @ git+https://github.com/gautamchitnis/cocoapi.git@20291f19c46a8d11935862bc9e449a1b72ec25ed#subdirectory=PythonAPI
+pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1636257122734/work
+pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1643496850550/work
+pyparsing==3.0.8
+PySocks @ file:///D:/bld/pysocks_1648857426124/work
+python-dateutil==2.8.2
+pytz==2022.1
+requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1641580202195/work
+six==1.16.0
+torch==1.11.0
+torchaudio==0.11.0
+torchvision==0.12.0
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1650370875435/work
+urllib3 @ file:///home/conda/feedstock_root/build_artifacts/urllib3_1647489083693/work
+win-inet-pton @ file:///D:/bld/win_inet_pton_1648771897787/work

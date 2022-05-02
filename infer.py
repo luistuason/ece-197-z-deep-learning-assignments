@@ -47,7 +47,9 @@ def infer():
         3: 'Pineapple Juice'
     }
     
-    image_filepath = os.path.abspath(os.path.join(cwd, 'data/drinks/0010003.jpg'))
+    # filename = '0010010.jpg'
+    filename = 'test.jpg'
+    image_filepath = os.path.abspath(os.path.join(cwd, 'data/drinks/' + filename))
 
     image = Image.open(image_filepath)
     image = T.ToTensor()(image)[0]
@@ -71,9 +73,9 @@ def infer():
                      'scores': detected['scores'][detected['scores'] > 0.8]}
 
         len_labels = len(detected['labels'])
-        colors = []
-        for _ in range(len_labels):
-            colors.append(tuple(np.random.randint(0, 255, size=3)))
+        colors = [(0, 255, 0), (0, 0, 255), (255, 00, 0), (0, 255, 0)]
+        # for _ in range(len_labels):
+        #     colors.append(tuple(np.random.randint(0, 255, size=3)))
 
         image = einops.rearrange(image, '() c h w -> c h w')
 
@@ -85,7 +87,7 @@ def infer():
         image = torchvision.utils.draw_bounding_boxes(image, detected['boxes'], width=3, colors=colors, labels=labels)
         image = torchvision.transforms.ToPILImage()(image)
         image.show()
-        image.save('output.jpg')
+        image.save('test/output_'+filename)
 
     
 if __name__ == "__main__":

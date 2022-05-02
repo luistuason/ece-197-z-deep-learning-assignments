@@ -36,7 +36,7 @@ def infer_frame(frame, og_frame, model):
         for idx, box in enumerate(detected['boxes']):
             confidence = detected['scores'][idx]
 
-            if confidence > 0.8:
+            if confidence > 0.7:
                 label_idx = int(detected['labels'][idx])
                 box = box.detach().cpu().numpy()
                 xmin, ymin, xmax, ymax = box.astype('int')
@@ -71,7 +71,7 @@ def main():
     
     #Start videeo capture
     if (os.name == 'nt'):
-        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
     elif (os.name == 'posix'):
         cap = cv2.VideoCapture(0)
 
