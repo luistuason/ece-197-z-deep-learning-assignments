@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import torch
+
 from model import *
 from dataset import *
 from lib.engine import train_one_epoch, evaluate
@@ -10,13 +11,14 @@ import lib.utils
 def train():
     # train on the GPU or on the CPU, if a GPU is not available
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    print('Device selected: ', device)
 
     cwd = os.path.abspath(os.path.dirname(__file__))
     labels_train_path = os.path.abspath(os.path.join(cwd, 'data/drinks/labels_train.csv'))
     labels_test_path = os.path.abspath(os.path.join(cwd, 'data/drinks/labels_test.csv'))
 
+    # declare the dataset
     num_classes = 4
-    # use our dataset and defined transformations
     dataset = DrinksDataset(root='data/drinks/', csv_file=labels_train_path, transforms=get_transform(train=True))
     dataset_test = DrinksDataset(root='data/drinks/', csv_file=labels_test_path, transforms=get_transform(train=False))
 
@@ -29,22 +31,21 @@ def train():
         dataset_test, batch_size=1, shuffle=False, num_workers=4,
         collate_fn=lib.utils.collate_fn)
 
-    # get the model using our helper function
+    # declare the model using helper function
     model = load_model(num_classes)
 
     # move model to the right device
     model.to(device)
 
-    # construct an optimizer
+    # construct an optimizer and learning rate scheduler
     params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.SGD(params, lr=0.0025,
                                 momentum=0.9, weight_decay=0.0005)
-    # and a learning rate scheduler
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                    step_size=3,
                                                    gamma=0.1)
 
-    # let's train it for 10 epochs
+
     num_epochs = 10
     epoch_number = 0
 
@@ -58,12 +59,9 @@ def train():
 
         # save checkpoint
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        model_path = 'model_{}_{}.pth'.format(timestamp, epoch_number)
+        model_path = 'export/model_{}_{}.pth'.format(timestamp, epoch_number)
         torch.save(model.state_dict(), model_path)
         epoch_number+=1
-            
-
-    print("That's it!")
     
 if __name__ == "__main__":
     train()

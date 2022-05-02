@@ -1,30 +1,11 @@
 import os
-import time
 import numpy as np
 import torch
 import cv2
 import imutils
 
-import torchvision
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-
+from model import *
 from dataset import *
-import lib.transforms as T
-
-def load_model(num_classes):
-    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
-    in_features = model.roi_heads.box_predictor.cls_score.in_features
-    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
-
-    return model
-
-
-def get_transform(train):
-    transforms = []
-    transforms.append(T.ToTensor())
-    if train:
-        transforms.append(T.RandomHorizontalFlip(0.5))
-    return T.Compose(transforms)
 
 
 def infer_frame(frame, og_frame, model):
@@ -36,7 +17,7 @@ def infer_frame(frame, og_frame, model):
         for idx, box in enumerate(detected['boxes']):
             confidence = detected['scores'][idx]
 
-            if confidence > 0.7:
+            if confidence > 0.8:
                 label_idx = int(detected['labels'][idx])
                 box = box.detach().cpu().numpy()
                 xmin, ymin, xmax, ymax = box.astype('int')
@@ -49,7 +30,7 @@ def infer_frame(frame, og_frame, model):
                 elif label_idx == 3:
                     color = (0, 255, 0)
                 cv2.rectangle(og_frame, (xmin, ymin), (xmax,ymax), color, 2)
-                cv2.putText(og_frame, label, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
+                cv2.putText(og_frame, label, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
     return og_frame
 
@@ -71,7 +52,7 @@ def main():
     
     #Start videeo capture
     if (os.name == 'nt'):
-        cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     elif (os.name == 'posix'):
         cap = cv2.VideoCapture(0)
 
@@ -86,7 +67,7 @@ def main():
         og = frame.copy()
 
         # Convert frame to tensor
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)     # cv2 reads images as BGR, so convert to RGB first
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)          # cv2 reads images as BGR, so convert to RGB first
         frame = frame.transpose((2, 0, 1))                      # H W C -> C H W
         frame = np.expand_dims(frame, axis=0)                   # add dim for batch size
         frame = frame / 255                                     # normalize [0,1]
