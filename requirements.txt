@@ -9,3 +9,5 @@ pandas
 einops
 Pillow
 requests
+pytorch-lightning
+torchmetrics

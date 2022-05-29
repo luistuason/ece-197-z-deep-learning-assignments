@@ -2,6 +2,8 @@ assign-2/data/
 assign-2/export/
 assign-2/checkpoints/
 
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
