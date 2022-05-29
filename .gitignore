@@ -1,6 +1,6 @@
-data/
-export/
-checkpoints/
+assign-2/data/
+assign-2/export/
+assign-2/checkpoints/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
