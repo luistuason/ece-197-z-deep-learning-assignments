@@ -1,6 +1,6 @@
 import os
+import torch
 from argparse import ArgumentParser
-import matplotlib.pyplot as plt 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 
@@ -17,13 +17,20 @@ CLASS_TO_IDX = {c: i for i, c in enumerate(CLASSES)}
 
 def get_args():
     parser = ArgumentParser()
+
     # model training hyperparameters
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--max-epochs', type=int, default=30, metavar='N',
                         help='number of epochs to train (default: 30)')
     parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
-                        help='learning rate (default: 0.001)')
+                        help='learning rate (default: 0.0005)')
+
+    # Transformer parameters
+    parser.add_argument("--depth", type=int, default=12)
+    parser.add_argument("--embed_dim", type=int, default=64)
+    parser.add_argument("--num_heads", type=int, default=8)
+    parser.add_argument("--patch_size", type=int, default=16)
 
     # where dataset will be stored
     parser.add_argument("--path", type=str, default="data/speech_commands/")
@@ -41,7 +48,7 @@ def get_args():
     parser.add_argument("--precision", default=16)
     parser.add_argument("--accelerator", default='gpu')
     parser.add_argument("--devices", default=1)
-    parser.add_argument("--num-workers", type=int, default=48)
+    parser.add_argument("--num-workers", type=int, default=0)
 
     args = parser.parse_args("")
     return args
@@ -51,35 +58,60 @@ def train():
     if not os.path.exists(args.path):
         os.makedirs(args.path, exist_ok=True)
 
-    model = KWSModel(num_classes=args.num_classes, epochs=args.max_epochs, lr=args.lr)
-    print(model)
-    datamodule = KWSDataModule(batch_size=args.batch_size, num_workers=args.num_workers,
-                               path=args.path, n_fft=args.n_fft, n_mels=args.n_mels,
-                               win_length=args.win_length, hop_length=args.hop_length,
-                               class_dict=CLASS_TO_IDX)
+    datamodule = KWSDataModule(batch_size=args.batch_size, 
+                               num_workers=args.num_workers, 
+                               patch_size=args.patch_size,
+                               path=args.path,
+                               n_fft=args.n_fft, 
+                               n_mels=args.n_mels,
+                               win_length=args.win_length, 
+                               hop_length=args.hop_length,
+                               class_dict=CLASS_TO_IDX, )
     datamodule.setup()
 
-    model_checkpoint = ModelCheckpoint(
-        dirpath=os.path.join(args.path, "checkpoints"),
-        filename="resnet18-kws-best-acc",
-        save_top_k=1,
-        verbose=True,
-        monitor='test_acc',
-        mode='max',
-    )
-    idx_to_class = {v: k for k, v in CLASS_TO_IDX.items()}
-    trainer = Trainer(accelerator=args.accelerator,
-                      devices=args.devices,
-                      precision=args.precision,
-                      max_epochs=args.max_epochs,
-                      logger=wandb_logger if not args.no_wandb else None,
-                      callbacks=[model_checkpoint, WandbCallback() if not args.no_wandb else None])
-    model.hparams.sample_rate = datamodule.sample_rate
-    model.hparams.idx_to_class = idx_to_class
-    trainer.fit(model, datamodule=datamodule)
-    trainer.test(model, datamodule=datamodule)
+    data = iter(datamodule.train_dataloader()).next()
+    patch_dim = data[0].shape[-1]
+    seqlen = data[0].shape[-2]
 
-    #trainer.save_checkpoint('../mnist/checkpoint.ckpt')
+    model = KWSModel(num_classes=args.num_classes, 
+                     epochs=args.max_epochs, 
+                     lr=args.lr, 
+                     depth=args.depth, 
+                     embed_dim=args.embed_dim, 
+                     head=args.num_heads, 
+                     patch_dim=patch_dim, 
+                     seqlen=seqlen)
+
+    # model_checkpoint = ModelCheckpoint(
+    #     dirpath=os.path.join(args.path, "checkpoints"),
+    #     filename="transformer-kws-best-acc",
+    #     save_top_k=1,
+    #     verbose=True,
+    #     monitor='test_acc',
+    #     mode='max',
+    # )
+
+    # idx_to_class = {v: k for k, v in CLASS_TO_IDX.items()}
+
+    # trainer = Trainer(accelerator=args.accelerator,
+    #                   devices=args.devices,
+    #                   precision=args.precision,
+    #                   max_epochs=args.max_epochs,
+    #                   callbacks=model_checkpoint)
+    # model.hparams.sample_rate = datamodule.sample_rate
+    # model.hparams.idx_to_class = idx_to_class
+    # trainer.fit(model, datamodule=datamodule)
+    # trainer.test(model, datamodule=datamodule)
+
+    # script = model.to_torchscript()
+    
+    model = model.load_from_checkpoint(os.path.join(args.path, "checkpoints", "transformer-kws-best-acc-v2.ckpt"))
+    model.eval()
+    script = model.to_torchscript()
+
+    model_path = os.path.join(args.path, "checkpoints", 
+                            "transformer-kws-best-acc.pt")
+    torch.jit.save(script, model_path) 
 
 if __name__ == "__main__":
     train()

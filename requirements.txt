@@ -11,3 +11,6 @@ Pillow
 requests
 pytorch-lightning
 torchmetrics
+validators
+sounddevice
+pysimplegui

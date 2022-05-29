@@ -50,13 +50,14 @@ class UnknownDataset(SPEECHCOMMANDS):
 The PyTorch Lightning Data Module for KWS
 '''
 class KWSDataModule(LightningDataModule):
-    def __init__(self, path, batch_size=128, num_workers=0, n_fft=512, 
+    def __init__(self, path, batch_size=128, num_workers=0, patch_size=4, n_fft=512, 
                  n_mels=128, win_length=None, hop_length=256, class_dict={}, 
                  **kwargs):
         super().__init__(**kwargs)
         self.path = path
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.patch_size = patch_size
         self.n_fft = n_fft
         self.n_mels = n_mels
         self.win_length = win_length
@@ -123,7 +124,7 @@ class KWSDataModule(LightningDataModule):
     def collate_fn(self, batch):
         mels = []
         labels = []
-        wavs = []
+        # wavs = []
         for sample in batch:
             waveform, sample_rate, label, speaker_id, utterance_number = sample
             # ensure that all waveforms are 1sec in length; if not pad with zeros
@@ -135,10 +136,10 @@ class KWSDataModule(LightningDataModule):
             # mel from power to db
             mels.append(ToTensor()(librosa.power_to_db(self.transform(waveform).squeeze().numpy(), ref=np.max)))
             labels.append(torch.tensor(self.class_dict[label]))
-            wavs.append(waveform)
 
-        mels = torch.stack(mels)
+        mels = torch.stack(mels, dim=0)
         labels = torch.stack(labels)
-        wavs = torch.stack(wavs)
+
+        mels_arranged = rearrange(mels, 'b c h (p w) -> b p (c h w)', p=self.patch_size)
    
-        return mels, labels, wavs
+        return mels_arranged, labels

@@ -84,11 +84,12 @@ def init_weights_vit_timm(module: nn.Module):
         module.init_weights()
 
 class KWSModel(LightningModule):
-    def __init__(self, num_classes=37, lr=0.001, max_epochs=30, depth=12, embed_dim=64, head=4, patch_dim=192, seqlen=16, **kwargs):
+    def __init__(self, num_classes=37, lr=0.001, max_epochs=30, depth=12, embed_dim=64, 
+                 head=4, patch_dim=192, seqlen=16, **kwargs):
         super().__init__()
         self.save_hyperparameters()
-        self.encoder = Transformer(dim=embed_dim, num_heads=head, num_blocks=depth, mlp_ratio=4., qkv_bias=False, act_layer=nn.GELU, norm_layer=nn.LayerNorm)
-        
+        self.encoder = Transformer(dim=embed_dim, num_heads=head, num_blocks=depth, mlp_ratio=4., 
+                                   qkv_bias=False, act_layer=nn.GELU, norm_layer=nn.LayerNorm)
         self.embed = nn.Linear(patch_dim, embed_dim)
         
         self.fc = nn.Linear(seqlen * embed_dim, num_classes)
