@@ -1,7 +1,6 @@
 # ECE 197 Z Deep Learning - Assignment 3: Keyword Spotting using Transformer
 ### Build a transformer-based keyword spotting (KWS) system
 --------------------------------------------------------------------------------
-<br>
 
 **Philip Luis D. Tuason III**
 
