@@ -40,6 +40,8 @@ You may try out the model through the GUI-based application that recognizes keyw
 python kws-infer.py
 ```
 
+--------------------------------------------------------------------------------
+
 ## Video Demo
 
-You may watch a video demo of the GUI-based application being used [here]().
+You may watch a video demo of the GUI-based application being used [here](media/video_demo.mp4).
