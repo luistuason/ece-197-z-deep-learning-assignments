@@ -1,24 +1,3 @@
-'''
-Runs an inference on a single audio file.
-Assumption is data file and checkpoint are in the same args.path
-Simple test:
-    python3 kws-infer.py --wav-file <path-to-wav-file>  
-To use microphone input with GUI interface, run:
-    python3 kws-infer.py --gui
-    On RPi 4:
-    python3 kws-infer.py --rpi --gui
-Dependencies:
-    sudo apt-get install libasound2-dev libportaudio2 
-    pip3 install pysimplegui
-    pip3 install sounddevice 
-    pip3 install librosa
-    pip3 install validators
-Inference time:
-    0.03 sec Quad Core Intel i7 2.3GHz
-    0.08 sec on RPi 4
-'''
-
-
 import torch
 import argparse
 import torchaudio
@@ -31,7 +10,6 @@ import validators
 from torchvision.transforms import ToTensor
 from einops import rearrange
 
-
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str, default="data/speech_commands/")
@@ -39,15 +17,11 @@ def get_args():
     parser.add_argument("--n-mels", type=int, default=128)
     parser.add_argument("--win-length", type=int, default=None)
     parser.add_argument("--hop-length", type=int, default=512)
-    parser.add_argument("--wav-file", type=str, default=None)
-    parser.add_argument("--checkpoint", type=str, default="https://github.com/roatienza/Deep-Learning-Experiments/releases/download/models/resnet18-kws-best-acc.pt")
-    parser.add_argument("--gui", default=False, action="store_true")
-    parser.add_argument("--rpi", default=False, action="store_true")
+    parser.add_argument("--checkpoint", type=str, default="https://github.com/luistuason/ece-197-z-deep-learning-assignments/releases/download/v2.00/transformer-kws-best-acc.pt")
     parser.add_argument("--threshold", type=float, default=0.6)
     parser.add_argument("--patch-size", type=int, default=16)
     args = parser.parse_args()
     return args
-
 
 # main routine
 if __name__ == "__main__":
@@ -71,30 +45,11 @@ if __name__ == "__main__":
     print("Loading model checkpoint: ", checkpoint)
     scripted_module = torch.jit.load(checkpoint)
 
-    if args.gui:
-        import PySimpleGUI as sg
-        sample_rate = 16000
-        sd.default.samplerate = sample_rate
-        sd.default.channels = 1
-        sg.theme('DarkAmber')
-  
-    elif args.wav_file is None:
-        # list wav files given a folder
-        print("Searching for random kws wav file...")
-        label = CLASSES[2:]
-        label = np.random.choice(label)
-        path = os.path.join(args.path, "SpeechCommands/speech_commands_v0.02/")
-        path = os.path.join(path, label)
-        wav_files = [os.path.join(path, f)
-                     for f in os.listdir(path) if f.endswith('.wav')]
-        # select random wav file
-        wav_file = np.random.choice(wav_files)
-    else:
-        wav_file = args.wav_file
-        label = args.wav_file.split("/")[-1].split(".")[0]
-
-    if not args.gui:
-        waveform, sample_rate = torchaudio.load(wav_file)
+    import PySimpleGUI as sg
+    sample_rate = 16000
+    sd.default.samplerate = sample_rate
+    sd.default.channels = 1
+    sg.theme('DarkAmber')
 
     transform = torchaudio.transforms.MelSpectrogram(sample_rate=sample_rate,
                                                      n_fft=args.n_fft,
@@ -102,13 +57,6 @@ if __name__ == "__main__":
                                                      hop_length=args.hop_length,
                                                      n_mels=args.n_mels,
                                                      power=2.0)
-    if not args.gui:
-        mel = ToTensor()(librosa.power_to_db(transform(waveform).squeeze().numpy(), ref=np.max))
-        mel = mel.unsqueeze(0)
-
-        pred = torch.argmax(scripted_module(mel), dim=1)
-        print(f"Ground Truth: {label}, Prediction: {idx_to_class[pred.item()]}")
-        exit(0)
 
     layout = [ 
         [sg.Text('Say it!', justification='center', expand_y=True, expand_x=True, font=("Helvetica", 140), key='-OUTPUT-'),],
@@ -133,19 +81,8 @@ if __name__ == "__main__":
         if waveform.max() > 1.0:
             continue
         start_time = time.time()
-        if args.rpi:
-            # this is a workaround for RPi 4
-            # torch 1.11 requires a numpy >= 1.22.3 but librosa 0.9.1 requires == 1.21.5
-            waveform = torch.FloatTensor(waveform.tolist())
-            mel = np.array(transform(waveform).squeeze().tolist())
-            mel = librosa.power_to_db(mel, ref=np.max).tolist()
-            
-            mel = torch.FloatTensor(mel)
-            mel = mel.unsqueeze(0)
-
-        else:
-            waveform = torch.from_numpy(waveform).unsqueeze(0)
-            mel = ToTensor()(librosa.power_to_db(transform(waveform).squeeze().numpy(), ref=np.max))
+        waveform = torch.from_numpy(waveform).unsqueeze(0)
+        mel = ToTensor()(librosa.power_to_db(transform(waveform).squeeze().numpy(), ref=np.max))
         mel = rearrange(mel, 'c h (p w) -> p (c h w)', p=args.patch_size)
         mel = mel.unsqueeze(0)
         
