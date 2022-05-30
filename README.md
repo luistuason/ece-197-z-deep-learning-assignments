@@ -31,11 +31,15 @@ python train.py
 ```
 The dataset should automatically be downloaded as you run the script.
 
-The default patch size for the Transformer is set to 16. This resulted in a test accuracy of 92.87%. You may download the checkpoint for the pre-trained model [here](https://github.com/luistuason/ece-197-z-deep-learning-assignments/releases/download/v2.00/transformer-kws-best-acc.pt)
+The default patch size for the Transformer is set to 16. This resulted in a test accuracy of **92.87%**. You may download the checkpoint for the pre-trained model [here](https://github.com/luistuason/ece-197-z-deep-learning-assignments/releases/download/v2.00/transformer-kws-best-acc.pt)
 
-### Demo
+### GUI-based Demo
 
 You may try out the model through the GUI-based application that recognizes keywords from your PC's microphone. Running the script also automatically downloads the pre-trained model attached above.
 ```
 python kws-infer.py
 ```
+
+## Video Demo
+
+You may watch a video demo of the GUI-based application being used [here]().
