@@ -82,30 +82,29 @@ def train():
                      patch_dim=patch_dim, 
                      seqlen=seqlen)
 
-    # model_checkpoint = ModelCheckpoint(
-    #     dirpath=os.path.join(args.path, "checkpoints"),
-    #     filename="transformer-kws-best-acc",
-    #     save_top_k=1,
-    #     verbose=True,
-    #     monitor='test_acc',
-    #     mode='max',
-    # )
+    model_checkpoint = ModelCheckpoint(
+        dirpath=os.path.join(args.path, "checkpoints"),
+        filename="transformer-kws-best-acc",
+        save_top_k=1,
+        verbose=True,
+        monitor='test_acc',
+        mode='max',
+    )
 
-    # idx_to_class = {v: k for k, v in CLASS_TO_IDX.items()}
+    idx_to_class = {v: k for k, v in CLASS_TO_IDX.items()}
 
-    # trainer = Trainer(accelerator=args.accelerator,
-    #                   devices=args.devices,
-    #                   precision=args.precision,
-    #                   max_epochs=args.max_epochs,
-    #                   callbacks=model_checkpoint)
-    # model.hparams.sample_rate = datamodule.sample_rate
-    # model.hparams.idx_to_class = idx_to_class
-    # trainer.fit(model, datamodule=datamodule)
-    # trainer.test(model, datamodule=datamodule)
+    trainer = Trainer(accelerator=args.accelerator,
+                      devices=args.devices,
+                      precision=args.precision,
+                      max_epochs=args.max_epochs,
+                      callbacks=model_checkpoint)
+    model.hparams.sample_rate = datamodule.sample_rate
+    model.hparams.idx_to_class = idx_to_class
+    trainer.fit(model, datamodule=datamodule)
+    trainer.test(model, datamodule=datamodule)
 
-    # script = model.to_torchscript()
     
-    model = model.load_from_checkpoint(os.path.join(args.path, "checkpoints", "transformer-kws-best-acc-v2.ckpt"))
+    model = model.load_from_checkpoint(os.path.join(args.path, "checkpoints", "transformer-kws-best-acc.ckpt"))
     model.eval()
     script = model.to_torchscript()
 
