@@ -44,8 +44,7 @@ def get_args():
     parser.add_argument("--win-length", type=int, default=None)
     parser.add_argument("--hop-length", type=int, default=512)
 
-    # 16-bit fp model to reduce the size
-    parser.add_argument("--precision", default=16)
+    # Trainer arguments
     parser.add_argument("--accelerator", default='gpu')
     parser.add_argument("--devices", default=1)
     parser.add_argument("--num-workers", type=int, default=0)
@@ -95,7 +94,7 @@ def train():
 
     trainer = Trainer(accelerator=args.accelerator,
                       devices=args.devices,
-                      precision=args.precision,
+                      precision=16 if args.accelerator == 'gpu' else 32,
                       max_epochs=args.max_epochs,
                       callbacks=model_checkpoint)
     model.hparams.sample_rate = datamodule.sample_rate
