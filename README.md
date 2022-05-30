@@ -16,7 +16,6 @@
 *University of the Philippines Diliman*
 
 --------------------------------------------------------------------------------
-<br>
 
 ## How to run
 
@@ -24,8 +23,6 @@ It is assumed that CUDA-enabled PyTorch is installed in your environment via con
 ```
 pip install -r requirements.txt
 ```
-
-<br>
 
 ### Training
 
@@ -36,8 +33,6 @@ python train.py
 The dataset should automatically be downloaded as you run the script.
 
 The default patch size for the Transformer is set to 16. This resulted in a test accuracy of 92.87%. You may download the checkpoint for the pre-trained model [here](https://github.com/luistuason/ece-197-z-deep-learning-assignments/releases/download/v2.00/transformer-kws-best-acc.pt)
-
-<br>
 
 ### Demo
 
