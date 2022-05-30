@@ -18,21 +18,6 @@
 --------------------------------------------------------------------------------
 <br>
 
-The goal of this assignment was to arbitrarily select a pre-trained object detection model from the **torchvision** library and fine-tune it with the provided COCO drinks dataset. I chose to use the **Faster R-CNN model with a ResNet-50 FPN backbone** as it had, for me, the best tradeoff between accuracy and train time according to this *[PyTorch reference](https://pytorch.org/vision/stable/models.html#object-detection-instance-segmentation-and-person-keypoint-detection)*. The official reference for this model can be found *[here](https://arxiv.org/abs/1506.01497)* (arXiv).
-
-In developing this project, I mostly relied on the following references:
-  - *[TorchVision object detection fine-tuning tutorial](https://pytorch.org/)*
-  - *[PyTorch object detection reference training scripts](https://github.com/pytorch/vision/tree/main/references/detection)*
-  - PyTorch and torchvision documentation
-
---------------------------------------------------------------------------------
-
-<p align='center'><img src='imgs/demo.gif'></p>
-
---------------------------------------------------------------------------------
-
-<br>
-
 ## How to run
 
 It is assumed that CUDA-enabled PyTorch is installed in your environment via conda. Other prerequisites can be found in [requirements.txt](requirements.txt)
@@ -42,30 +27,21 @@ pip install -r requirements.txt
 
 <br>
 
-### Testing
-
-After satisfying all the prerequisites, you may evaluate the model through
-```
-python test.py
-```
-
-The dataset and model checkpoints should automatically be downloaded as you run the script.
-
-<br>
-
 ### Training
 
-If you wish to replicate the model, you may do so through
+After satisfying all the prerequisites, you may train the model through
 ```
 python train.py
 ```
+The dataset should automatically be downloaded as you run the script.
+
+The default patch size for the Transformer is set to 16. This resulted in a test accuracy of 92.87%. You may download the checkpoint for the pre-trained model [here](https://github.com/luistuason/ece-197-z-deep-learning-assignments/releases/download/v2.00/transformer-kws-best-acc.pt)
 
 <br>
 
 ### Demo
 
-To test the model's performance to its limits, you can perform real-time inference through the demo script.
+You may try out the model through the GUI-based application that recognizes keywords from your PC's microphone. Running the script also automatically downloads the pre-trained model attached above.
 ```
-python demo.py
+python kws-infer.py
 ```
-Note that the frame rate is dependent on how fast the model performs in your environment.
